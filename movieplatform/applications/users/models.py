@@ -60,10 +60,10 @@ class Perfil(TimeStampedModel):
         (OTRO, 'Otro'),
     )
     
-    name = models.CharField('Nombre Perfil', max_length=50)
+    name = models.CharField('Nombre Perfil', max_length=20)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='perfil_user', on_delete=models.CASCADE)
     avatar = models.ImageField('Imagen de Perfil', upload_to='perfil', blank=True, null=True)
-    type = models.CharField('Tipo de Perfil', max_length=1, choices=TIPO_PERFIL, blank=True, null=True)
+    type = models.CharField('Tipo de Perfil', max_length=1, choices=TIPO_PERFIL)
 
     class Meta:
         verbose_name = 'Perfil'

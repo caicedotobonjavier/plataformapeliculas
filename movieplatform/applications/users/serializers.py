@@ -2,6 +2,8 @@ import datetime
 #
 from .models import User, Perfil
 #
+from django.contrib.auth import authenticate
+#
 from rest_framework import serializers
 #
 
@@ -41,3 +43,30 @@ class ActivateUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("Codigo incorrecto")
         
         return data
+
+
+
+class UserListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    full_name = serializers.CharField()
+    address = serializers.CharField()
+    date_birth = serializers.DateField()
+    gender = serializers.CharField()
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        if not authenticate(email=data['email'], password=data['password']):
+            raise serializers.ValidationError("Credenciales incorrectas")
+        
+        return data
+
+
+
+class PerfilSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=20)
+    type = serializers.CharField(max_length=1)
