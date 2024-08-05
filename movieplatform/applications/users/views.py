@@ -8,7 +8,7 @@ from django.urls import reverse_lazy, reverse
 #
 from django.contrib.auth import authenticate, login, logout
 #
-from .serializers import UserSerializer, ActivateUserSerializer, UserListSerializer, LoginSerializer, PerfilSerializer
+from .serializers import UserSerializer, ActivateUserSerializer, UserListSerializer, LoginSerializer, PerfilSerializer, UpdatePasswordSerializer
 #
 from rest_framework.views import APIView
 #
@@ -95,6 +95,9 @@ class ActivateUser(APIView):
 
 
 
+
+# Esta clase de Python `ListUser` es una vista API que recupera todos los objetos de usuario de la base de datos y
+# los serializa usando `UserListSerializer`.
 class ListUser(APIView):
     serializer_class = UserListSerializer
 
@@ -108,6 +111,8 @@ class ListUser(APIView):
 
 
 
+
+# Esta clase de Python maneja la autenticación de inicio de sesión del usuario y genera un token para los autenticados usuario.
 class LoginUser(APIView):
     serializer_class = LoginSerializer
 
@@ -135,6 +140,36 @@ class LoginUser(APIView):
             )
 
 
+
+# Esta clase de Python es para actualizar la contraseña de un usuario a través de un punto final API con token autenticación.
+class UpdatePassword(APIView):
+    serializer_class = UpdatePasswordSerializer
+    authentication_classes = (TokenAuthentication,)
+
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'user': self.request.user})
+        serializer.is_valid(raise_exception=True)
+
+        usuario = self.request.user
+        contrasena = serializer.validated_data['password']
+        nueva_contrasena = serializer.validated_data['new_password']
+
+        user = authenticate(email=usuario, password=contrasena)
+        if user:
+            user.set_password(nueva_contrasena)
+            user.save()
+
+        return Response(
+            {
+                'Mensaje' : f'Se realizo cambio de contraseña a el usuario {usuario}'
+            }
+        )
+    
+
+
+
+# La clase `AddPerfilUsers` es una vista API de Django que crea un nuevo perfil asociado con el usuario autenticado.
 class AddPerfilUsers(APIView):
     serializer_class = PerfilSerializer
     authentication_classes = (TokenAuthentication,)

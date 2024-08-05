@@ -46,6 +46,8 @@ class ActivateUserSerializer(serializers.Serializer):
 
 
 
+# Esta clase define un serializador para una lista de usuarios con campos para identificación, correo electrónico, nombre completo, dirección y fecha.
+# de nacimiento y sexo.
 class UserListSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     email = serializers.EmailField()
@@ -55,6 +57,8 @@ class UserListSerializer(serializers.Serializer):
     gender = serializers.CharField()
 
 
+
+# La clase `LoginSerializer` en Python valida los campos de correo electrónico y contraseña para la autenticación.
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -66,6 +70,25 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 
+
+# Esta clase de Python define un serializador para actualizar la contraseña de un usuario con lógica de validación.
+class UpdatePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    new_password = serializers.CharField()
+    
+    def validate(self, data):
+        usuario = self.context.get('user')
+        print(usuario)
+        contrasena_actual = data['password']
+        nueva_contrasena = data['new_password']
+
+        if not authenticate(email=usuario, password=contrasena_actual):
+            raise serializers.ValidationError("Credenciales incorrectas")
+
+        return data
+
+
+# Esta clase define un serializador para un perfil con campos de nombre y tipo.
 
 class PerfilSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=20)
