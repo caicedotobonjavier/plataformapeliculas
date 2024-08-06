@@ -1,12 +1,18 @@
 from django.shortcuts import render
 #
-from .models import Category, Movie
+from .models import Category, Movie, ContinuarViendo
 #
-from .serializers import CategorySerializer, CategoryListSerializer, MovieSerializer, MovieListSerializer
+from applications.users.models import Perfil, User
+#
+from django.shortcuts import get_object_or_404
+#
+from .serializers import CategorySerializer, CategoryListSerializer, MovieSerializer, MovieListSerializer, ContinuarViendoSerializer, MoviesTheUserPerfil
 #
 from rest_framework.views import APIView
 #
 from rest_framework.response import Response
+#
+from rest_framework.authentication import TokenAuthentication
 # Create your views here.
 
 
@@ -90,3 +96,51 @@ class ListMovies(APIView):
         return Response(
             serializer
         )
+
+
+
+
+# Esta clase de Python define una vista para continuar viendo una película, donde crea una nueva entrada en
+# la base de datos para el perfil de usuario y la película que se está viendo.
+class ContianuarViendo(APIView):
+    serializer_class = ContinuarViendoSerializer
+    authentication_classes = (TokenAuthentication,)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        perfil_usuario = Perfil.objects.get(id=serializer.validated_data['perfil'])
+        pelicula = Movie.objects.get(id=serializer.validated_data['movie'])
+
+        print(perfil_usuario.user.full_name, pelicula.name)
+
+        ContinuarViendo.objects.create(
+            perfil = perfil_usuario,
+            movie = pelicula
+        )        
+
+
+        return Response(
+            {
+                'usuario' : f'El usuario: [{perfil_usuario.user.full_name}]',
+                'perfil' : f'Con perfil : [{perfil_usuario}]',
+                'pelicula' : f'Esta viendo la pelicula: [{pelicula}]'
+            }
+        )
+
+
+# Esta clase es una vista API en Python que recupera y serializa datos de películas en el archivo de un usuario.
+# perfil.
+class MoviePerfilUser(APIView):
+    serializer_class = MoviesTheUserPerfil
+
+    
+    def get(self, request, *args, **kwargs):
+        id = self.kwargs['pk']
+        queryset = ContinuarViendo.objects.filter(perfil=id)
+        print(queryset)
+        serializer = self.serializer_class(queryset, many=True).data
+        
+
+        return Response(serializer)

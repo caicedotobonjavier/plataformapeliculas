@@ -35,3 +35,14 @@ class MovieListSerializer(serializers.Serializer):
     trailer = serializers.URLField()
     category = serializers.CharField()
     active = serializers.BooleanField()
+
+
+class ContinuarViendoSerializer(serializers.Serializer):
+    perfil = serializers.IntegerField()
+    movie = serializers.IntegerField()
+
+
+class MoviesTheUserPerfil(serializers.Serializer):
+    id = serializers.IntegerField()
+    perfil = serializers.CharField()
+    movie = serializers.CharField()

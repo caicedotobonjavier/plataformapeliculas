@@ -2,7 +2,7 @@ from django.db import models
 #
 from model_utils.models import TimeStampedModel
 #
-from applications.users.models import User
+from applications.users.models import Perfil
 #
 from django.conf import settings
 # Create your models here.
@@ -40,7 +40,7 @@ class Movie(TimeStampedModel):
 
 
 class ContinuarViendo(TimeStampedModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
 
     class Meta:
@@ -49,4 +49,4 @@ class ContinuarViendo(TimeStampedModel):
     
 
     def __str__(self):
-        return f'{self.user.full_name} - {self.movie.name}'
+        return f'{self.perfil.user.full_name} - {self.movie.name}'

@@ -30,7 +30,7 @@ admin.site.register(Movie, MovieAdmin)
 class ContinuarViendoAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'user',
+        'perfil',
         'movie',
     )
 

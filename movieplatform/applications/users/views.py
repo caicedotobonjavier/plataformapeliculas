@@ -8,7 +8,7 @@ from django.urls import reverse_lazy, reverse
 #
 from django.contrib.auth import authenticate, login, logout
 #
-from .serializers import UserSerializer, ActivateUserSerializer, UserListSerializer, LoginSerializer, PerfilSerializer, UpdatePasswordSerializer
+from .serializers import UserSerializer, ActivateUserSerializer, UserListSerializer, LoginSerializer, PerfilSerializer, UpdatePasswordSerializer,LoginPerfilSerializer
 #
 from rest_framework.views import APIView
 #
@@ -182,13 +182,14 @@ class AddPerfilUsers(APIView):
         nombre = serializer.validated_data['name']
         tipo = serializer.validated_data['type']
         usuario = self.request.user
+        contrasena = serializer.validated_data['pin']
 
-        new_perfil = Perfil.objects.create(
+        perfil = new_perfil = Perfil.objects.create(
             name = nombre,
             user = usuario,
-            type = tipo
+            type = tipo,
+            pin = contrasena
         )
-
 
         return Response(
             {
@@ -196,3 +197,35 @@ class AddPerfilUsers(APIView):
                 'nuevo_perfil' : new_perfil.name
             }
         )
+
+
+
+# La clase `LoginPerfil` maneja la autenticación de inicio de sesión del usuario validando las credenciales proporcionadas y
+# redirigir a una página específica si tiene éxito.
+class LoginPerfil(APIView):
+    serializer_class = LoginPerfilSerializer
+
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        perfil = Perfil.objects.get(name=serializer.validated_data['name'])
+        pin = serializer.validated_data['pin']
+
+        if perfil.pin == pin:
+
+            #uso por web para verificar la redireccion
+            return HttpResponseRedirect(
+                reverse(
+                    'category_app:list_movie_perfil',
+                    kwargs={'pk': perfil.id}
+                )
+            )
+
+            #respuesta en postman
+            #return Response(
+            #    {
+            #        'mensaje' : f'Ingreso correcto al perfil [{perfil}] del usuario [{perfil.user.full_name}]'
+            #    }
+            #)

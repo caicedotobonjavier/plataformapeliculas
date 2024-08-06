@@ -93,3 +93,25 @@ class UpdatePasswordSerializer(serializers.Serializer):
 class PerfilSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=20)
     type = serializers.CharField(max_length=1)
+    pin = serializers.CharField(max_length=4)
+    confirm_pin = serializers.CharField(max_length=4)
+
+    def validate(self, data):
+        if data['pin'] != data['confirm_pin']:
+            raise serializers.ValidationError('No coinciden los pines')
+        
+        return data
+
+
+class LoginPerfilSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=20)
+    pin = serializers.CharField(max_length=4)
+
+    def validate(self, data):
+        nombre = Perfil.objects.get(name=data['name'])
+        pin = data['pin']        
+
+        if not nombre.pin==pin:
+            raise serializers.ValidationError('Credenciales incorrectas')
+
+        return data
